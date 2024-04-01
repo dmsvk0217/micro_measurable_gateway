@@ -1,78 +1,8 @@
-const db = require("../firebase/firebase.js");
+const db = require("./firebase/firebase.js");
 const util = require("./util.js");
-const { substanceType, loraErrorType } = require("./const.js");
+const { substanceType } = require("./const.js");
 
-exports.getCurrentNodeInfoByLoraContent = (nodeInfoArr, loraContent) => {
-  let nodeAddress;
-  loraContent.split("/").map((data, index) => {
-    if (index === 0 && !isNaN(parseInt(data, 10))) {
-      nodeAddress = data;
-    }
-    if (index === 0 && isNaN(parseInt(data, 10))) {
-      return undefined;
-    }
-  });
-
-  for (const nodeInfo of nodeInfoArr) {
-    if (nodeInfo.nodeAddress === String(nodeAddress)) {
-      return nodeInfo;
-    }
-  }
-  return undefined;
-};
-
-exports.updateNodeBattery = async (options) => {
-  const { nodeAddress, loraContent } = options;
-  const nodeInfo = await this.getCurrentNodeInfoByNodeAddress(nodeAddress);
-  const id = nodeInfo.id;
-  const battery = getLastSegmentAfterSlash(loraContent);
-
-  const nodeInfoRef = db.doc(`node-info/${id}`);
-  await nodeInfoRef.update({ battery: battery });
-  const updatedDocumentSnapshot = await nodeInfoRef.get();
-  // console.log(
-  //   "[updateNodeBattery] done",
-  //   updatedDocumentSnapshot.data(),
-  //   loraContent
-  // );
-  console.log("[updateNodeBattery] done", loraContent);
-  return;
-};
-
-function getLastSegmentAfterSlash(inputString) {
-  const segments = inputString.split("/");
-  return segments[segments.length - 3]; // 로라 컨텐트 상의 베터리 잔량 위치
-}
-
-exports.isLoraErr = async (loraContent) => {
-  let result;
-  if (loraContent.startWith("+ERR=")) {
-    const loraErrNumber = loraContent.slice(5);
-    result = loraErrorType[loraErrNumber];
-    return true;
-  }
-  return false;
-};
-
-exports.getLoraErrTypeFromLoraData = (loraData) => {
-  const loraErrNumber = loraData.slice(5);
-  result = loraErrorType[loraErrNumber];
-  return result;
-};
-
-exports.getNodeInfoArr = async () => {
-  let nodeInfoArr = [];
-  const nodeInfoArrRef = db.collection("node-info");
-  const snapshot = await nodeInfoArrRef.get();
-
-  snapshot.forEach((doc) => {
-    let docData = doc.data();
-    docData["id"] = doc.id;
-    nodeInfoArr.push(docData);
-  });
-  return nodeInfoArr;
-};
-
+// addRawData 
 exports.addRawData = async function addRawData(options) {
   const { nodeAddress, nodeSubstancesArray } = options;
   const { yyyyMM, dayDD, hhmmss, hh } = util.getDate();
@@ -93,25 +23,20 @@ exports.addRawData = async function addRawData(options) {
     [substanceType[6]]: nodeSubstancesArray[6],
   };
 
-  await rawDataRef.add(dataObject);
+  try {
+    console.log("[addRawData] dataObject : ", dataObject);
+    // await rawDataRef.add(dataObject);
+  } catch (error) {
+    console.log("🚀 ~ addRawData ~ error:", error);
+  }
+  
   // console.log(
   //   `[addRawData] ${yyyyMM}-${dayDD} ${hhmmss} node${nodeAddress}(${nodeSubstancesArray}) done`,
   //   dataObject
   // );
-  console.log(`[addRawData] done`, nodeAddress);
 };
 
-exports.getCurrentNodeInfoByNodeAddress = async (nodeAddress) => {
-  const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", nodeAddress);
-
-  const nodeInfoSnapshot = await nodeInfoRef.get();
-  if (nodeInfoSnapshot.empty) return undefined;
-
-  let nodeInfo = nodeInfoSnapshot.docs[0].data();
-  nodeInfo["id"] = nodeInfoSnapshot.docs[0].id;
-  return nodeInfo;
-};
-
+// addErrData 
 exports.addErrData = function addErrData(options) {
   const { loraContent, nodeInfo, errMsg } = options;
   const { yyyyMM, dayDD, hhmmss } = util.getDate();
@@ -132,12 +57,58 @@ exports.addErrData = function addErrData(options) {
   console.log("🚀 ~ addErrData ~ dataObject:", dataObject);
 
   try {
-    errDataRef.add(dataObject);
+    console.log("[addErrData] dataObject : ", dataObject);
+    // errDataRef.add(dataObject);
   } catch (error) {
     console.log("🚀 ~ addErrData ~ error:", error);
   }
 
   return;
+};
+
+// update Node Battery
+exports.updateNodeBattery = async (options) => {
+  const { nodeAddress, loraContent } = options;
+  const nodeInfo = await this.getCurrentNodeInfoByNodeAddress(nodeAddress);
+  const id = nodeInfo.id;
+  const battery = getLastSegmentAfterSlash(loraContent);
+
+  const nodeInfoRef = db.doc(`node-info/${id}`);
+  await nodeInfoRef.update({ battery: battery });
+
+  const updatedDocumentSnapshot = await nodeInfoRef.get();
+  console.log("[updateNodeBattery] done", loraContent);
+  return;
+};
+
+function getLastSegmentAfterSlash(inputString) {
+  const segments = inputString.split("/");
+  return segments[segments.length - 3]; // 로라 컨텐트 상의 베터리 잔량 위치
+}
+
+exports.getCurrentNodeInfoByNodeAddress = async (nodeAddress) => {
+  const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", nodeAddress);
+
+  const nodeInfoSnapshot = await nodeInfoRef.get();
+  if (nodeInfoSnapshot.empty) return undefined;
+
+  let nodeInfo = nodeInfoSnapshot.docs[0].data();
+  nodeInfo["id"] = nodeInfoSnapshot.docs[0].id;
+  return nodeInfo;
+};
+
+//get NodeInfo
+exports.getNodeInfoArr = async () => {
+  let nodeInfoArr = [];
+  const nodeInfoArrRef = db.collection("node-info");
+  const snapshot = await nodeInfoArrRef.get();
+
+  snapshot.forEach((doc) => {
+    let docData = doc.data();
+    docData["id"] = doc.id;
+    nodeInfoArr.push(docData);
+  });
+  return nodeInfoArr;
 };
 
 /*

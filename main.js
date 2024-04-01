@@ -1,52 +1,52 @@
 const {
   addRawData,
   addErrData,
-  getLoraErrTypeFromLoraData,
   updateNodeBattery,
   getCurrentNodeInfoByNodeAddress,
 } = require("./func.js");
-const { generateTestRandomNodeData, extractLoraContentFromLoraData } = require("./util.js");
+const { generateTestRandomNodeData, extractLoraContentFromLoraData, getLoraErrTypeFromLoraData, } = require("./util.js");
 
 const numberOfNode = 15;
 const packetTimeIntervalMin = 0.1;
 const checkTimeIntervalMills = 20000;
 const testLoraHandleTimeIntervalMills = 2000;
-let timeTrace = Array.from({ length: numberOfNode + 1 }, () => new Date().getTime());
+
+/* 
+    ----------------LORA FORMAT----------------
+    +RCV=<Address>,<Length>,<Data>,<RSSI>,<SNR>
+      EX. +RCV=10,26,10/9/20/9/13/0.04/0/6/37//,-18,11
+      <Address> Transmitter Address ID
+      <Length> Data Length
+      <Data> ASCll Format Data : 노드번호/온도/습도/pm25/pm10/ch2o/풍향/풍속
+      <RSSI> Received Signal Strength Indicator : 시그널 세기
+      <SNR> Signal-to-noise ratio : 노이즈 비율
+  */
 
 main();
+
+let timeTrace = Array.from({ length: numberOfNode + 1 }, () => new Date().getTime());
+
 async function main() {
-  // setInterval(onTimeTrace, checkTimeIntervalMills);
+  // 시간단위 안에 모든 노드에 대해 데이터 수신 여부 체크
+  setInterval(onTimeTrace, checkTimeIntervalMills);
+  
   setInterval(loraHandler, testLoraHandleTimeIntervalMills);
 }
 
-/* 
-  Todo: serial port사용하여 로라데이터 받기
-    +RCV=,노드번호,사이즈,,
-    +RCV=10,26,10/9/20/9/13/0.04/0/6/37//,-18,11
-
-    +RCV=<Address>,<Length>,<Data>,<RSSI>,<SNR>
-    <Address> Transmitter Address ID
-    <Length> Data Length
-    <Data> ASCll Format Data -> 노드번호/온도/습도/pm25/pm10/ch2o/풍향/풍속
-    <RSSI> Received Signal Strength Indicator
-    <SNR> Signal-to-noise ratio
-*/
-
 async function loraHandler() {
+  // Todo: serial port사용하여 로라데이터 받기
   const loraData = generateTestRandomNodeData();
   console.log(loraData);
 
-  if (loraData.startsWith("+RCV=")) {
+  if (loraData.startsWith("+RCV=")) 
     rcvHandler(loraData);
-    return;
-  } else if (loraData.startsWith("+ERR=")) {
+  else if (loraData.startsWith("+ERR=")) 
     errHandler(loraData);
-    return;
-  } else {
+  else 
     elseHandler(loraData);
-    return;
-  }
+  
 }
+
 
 async function rcvHandler(loraData) {
   console.log("[rcvHandler]");
@@ -54,14 +54,14 @@ async function rcvHandler(loraData) {
   let nodeAddress;
   const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/\d+){3}\/\/,-?\d+,\d+$/;
 
-  // ERR: lora regexPattern invaild (센서값오류?!)
+  // ERR Case: lora regexPattern invaild (센서값오류로 추정)
   if (!regexPattern.test(loraData)) {
     console.log(regexPattern.test(loraData));
     addErrData({ loraContent: loraData, nodeInfo: null, errMsg: "lora regexPattern invaild" });
     return;
   }
 
-  // Vaild case
+  // Vaild Case
   const loraContent = extractLoraContentFromLoraData(loraData);
   const splitedLoraContent = loraContent.split("/");
   const nodeSubstancesArray = [];
@@ -69,22 +69,21 @@ async function rcvHandler(loraData) {
     if (index === 0) {
       nodeAddress = value;
       updateTimeTraceByNodeaddress(nodeAddress);
-    } else {
-      nodeSubstancesArray.push(value.includes(".") ? parseFloat(value) : parseInt(value, 10));
+      continue;
     }
+    nodeSubstancesArray.push(value.includes(".") ? parseFloat(value) : parseInt(value, 10));
   }
 
   console.log("🚀 ~ rcvHandler ~ nodeSubstancesArray:", nodeSubstancesArray);
 
-  await updateNodeBattery({
-    nodeAddress: nodeAddress,
-    loraContent: loraContent,
-  });
+  // await updateNodeBattery({
+  //   nodeAddress: nodeAddress,
+  //   loraContent: loraContent,
+  // });
   await addRawData({
     nodeAddress: nodeAddress,
     nodeSubstancesArray: nodeSubstancesArray,
   });
-
   return;
 }
 

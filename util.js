@@ -1,5 +1,11 @@
 const constant = require("./const.js");
 
+exports.getLoraErrTypeFromLoraData = (loraData) => {
+  const loraErrNumber = loraData.slice(5);
+  result = constant.loraErrorType[loraErrNumber];
+  return result;
+};
+
 exports.extractLoraContentFromLoraData = (loraData) => {
   const secondCommaIndex = loraData.indexOf(",", loraData.indexOf(",") + 1);
   const extractedData = loraData.substring(
@@ -23,6 +29,25 @@ exports.generateAllnodesTestData = () => {
   for (let i = 1; i <= 15; i++) {
     result += this.generateRandomTestData(i);
   }
+  return result;
+};
+
+exports.generateRandomTestData = (nodeAddress) => {
+  // 노드번호/습도/온도/pm10/pm2.5/포름알데히드/풍향/풍속
+  const humidity = (Math.random() * (30 - -10) + -10).toFixed(0);
+  const temperature = (Math.random() * (30 - -10) + -10).toFixed(0);
+  const pm10 = (Math.random() * (15 - 5) + 5).toFixed(0);
+  const pm25 = (Math.random() * (15 - 5) + 5).toFixed(0);
+  const ch2o = (Math.random() * (0.05 - 0) + 0).toFixed(2);
+  const wind_direction = getRandomWindDirectiony();
+  const wind_speed = (Math.random() * (30 - 0) + 0).toFixed(0);
+  const battery = Math.floor(Math.random() * 100) + 1;
+  const loraContent = `${nodeAddress}/${humidity}/${temperature}/${pm10}/${pm25}/${ch2o}/${wind_direction}/${wind_speed}/${battery}//`;
+
+  let result = `+RCV=${nodeAddress},${loraContent.length},`;
+  result += loraContent;
+  result += ",-18,11";
+
   return result;
 };
 
@@ -50,27 +75,8 @@ exports.generateErrTestData = () => {
   return result;
 };
 
-exports.generateRandomTestData = (nodeAddress) => {
-  // 노드번호/습도/온도/pm10/pm2.5/포름알데히드/풍향/풍속
-  const humidity = (Math.random() * (30 - -10) + -10).toFixed(0);
-  const temperature = (Math.random() * (30 - -10) + -10).toFixed(0);
-  const pm10 = (Math.random() * (15 - 5) + 5).toFixed(0);
-  const pm25 = (Math.random() * (15 - 5) + 5).toFixed(0);
-  const ch2o = (Math.random() * (0.05 - 0) + 0).toFixed(2);
-  const wind_direction = getRandomWindDirectiony();
-  const wind_speed = (Math.random() * (30 - 0) + 0).toFixed(0);
-  const battery = Math.floor(Math.random() * 100) + 1;
-  const loraContent = `${nodeAddress}/${humidity}/${temperature}/${pm10}/${pm25}/${ch2o}/${wind_direction}/${wind_speed}/${battery}//`;
-
-  let result = `+RCV=${nodeAddress},${loraContent.length},`;
-  result += loraContent;
-  result += ",-18,11";
-
-  return result;
-};
-
 exports.generateRandomTime = (i) => {
-  let hh = i; // 0부터 23까지의 랜덤 시간
+  let hh = i; // 시간은 user-input
   let mm = Math.floor(Math.random() * 60); // 0부터 59까지의 랜덤 분
   let ss = Math.floor(Math.random() * 60); // 0부터 59까지의 랜덤 초
 

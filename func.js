@@ -2,7 +2,7 @@ const db = require("./firebase/firebase.js");
 const util = require("./util.js");
 const { substanceType } = require("./const.js");
 
-// addRawData 
+// addRawData
 exports.addRawData = async function addRawData(options) {
   const { nodeAddress, nodeSubstancesArray } = options;
   const { yyyyMM, dayDD, hhmmss, hh } = util.getDate();
@@ -29,14 +29,15 @@ exports.addRawData = async function addRawData(options) {
   } catch (error) {
     console.log("🚀 ~ addRawData ~ error:", error);
   }
-  
+
   // console.log(
   //   `[addRawData] ${yyyyMM}-${dayDD} ${hhmmss} node${nodeAddress}(${nodeSubstancesArray}) done`,
   //   dataObject
   // );
+  return;
 };
 
-// addErrData 
+// addErrData
 exports.addErrData = function addErrData(options) {
   const { loraContent, nodeInfo, errMsg } = options;
   const { yyyyMM, dayDD, hhmmss } = util.getDate();
@@ -53,8 +54,6 @@ exports.addErrData = function addErrData(options) {
   if (loraContent) dataObject["loraContent"] = loraContent;
   if (errMsg) dataObject["errMsg"] = errMsg;
   if (nodeInfo) dataObject["nodeInfo"] = nodeInfo;
-
-  console.log("🚀 ~ addErrData ~ dataObject:", dataObject);
 
   try {
     console.log("[addErrData] dataObject : ", dataObject);
@@ -87,13 +86,18 @@ function getLastSegmentAfterSlash(inputString) {
 }
 
 exports.getCurrentNodeInfoByNodeAddress = async (nodeAddress) => {
-  const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", nodeAddress);
+  console.log("[getCurrentNodeInfoByNodeAddress] :", nodeAddress);
+  const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", String(nodeAddress));
 
   const nodeInfoSnapshot = await nodeInfoRef.get();
-  if (nodeInfoSnapshot.empty) return undefined;
+  if (nodeInfoSnapshot.empty) {
+    console.log("undefined");
+    return undefined;
+  }
 
   let nodeInfo = nodeInfoSnapshot.docs[0].data();
   nodeInfo["id"] = nodeInfoSnapshot.docs[0].id;
+  console.log(nodeInfo);
   return nodeInfo;
 };
 

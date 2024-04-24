@@ -5,7 +5,7 @@ const { substanceType } = require("./const.js");
 // addRawData
 exports.addRawData = async function addRawData(options) {
   const { nodeAddress, nodeSubstancesArray } = options;
-  const { yyyyMM, dayDD, hhmmss, hh } = util.getDate();
+  const { yyyyMM, dayDD, hhmmss } = util.getDate();
 
   const rawDataRef = db.collection(`raw-data/${yyyyMM}/day${dayDD}`);
   const nodeInfo = await exports.getNodeInfoByNodeAddress(nodeAddress);
@@ -26,19 +26,14 @@ exports.addRawData = async function addRawData(options) {
 
   try {
     console.log("[addRawData] dataObject : ", dataObject);
-    // await rawDataRef.add(dataObject);
+    rawDataRef.add(dataObject);
   } catch (error) {
     console.log("🚀 ~ addRawData ~ error:", error);
   }
 
-  // console.log(
-  //   `[addRawData] ${yyyyMM}-${dayDD} ${hhmmss} node${nodeAddress}(${nodeSubstancesArray}) done`,
-  //   dataObject
-  // );
   return;
 };
 
-// addErrData
 exports.addErrData = function addErrData(options) {
   const { loraContent, nodeInfo, errMsg } = options;
   const { yyyyMM, dayDD, hhmmss } = util.getDate();
@@ -65,23 +60,6 @@ exports.addErrData = function addErrData(options) {
   return;
 };
 
-exports.updateNodeBattery = async (options) => {
-  const { nodeAddress, battery } = options;
-
-  const querySnapshot = await db
-    .collection("node-info")
-    .where("nodeAddress", "==", String(nodeAddress))
-    .get();
-
-  if (!querySnapshot.empty) {
-    const doc = querySnapshot.docs[0];
-    await db.collection("node-info").doc(doc.id).update({ battery: battery });
-  }
-
-  console.log("[updateNodeBattery] done", loraContent);
-  return;
-};
-
 exports.getNodeInfoByNodeAddress = async (nodeAddress) => {
   console.log("[getNodeInfoByNodeAddress] :", nodeAddress);
   const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", String(nodeAddress));
@@ -93,24 +71,40 @@ exports.getNodeInfoByNodeAddress = async (nodeAddress) => {
   }
 
   let nodeInfo = nodeInfoSnapshot.docs[0].data();
-  nodeInfo["docId"] = nodeInfoSnapshot.docs[0].docId;
+  nodeInfo["docId"] = nodeInfoSnapshot.docs[0].id;
   console.log(nodeInfo);
   return nodeInfo;
 };
 
-//get NodeInfo
-exports.getNodeInfoArr = async () => {
-  let nodeInfoArr = [];
-  const nodeInfoArrRef = db.collection("node-info");
-  const snapshot = await nodeInfoArrRef.get();
+// exports.getNodeInfoArr = async () => {
+//   let nodeInfoArr = [];
+//   const nodeInfoArrRef = db.collection("node-info");
+//   const snapshot = await nodeInfoArrRef.get();
 
-  snapshot.forEach((doc) => {
-    let docData = doc.data();
-    docData["id"] = doc.id;
-    nodeInfoArr.push(docData);
-  });
-  return nodeInfoArr;
-};
+//   snapshot.forEach((doc) => {
+//     let docData = doc.data();
+//     docData["id"] = doc.id;
+//     nodeInfoArr.push(docData);
+//   });
+//   return nodeInfoArr;
+// };
+
+// exports.updateNodeBattery = async (options) => {
+//   const { nodeAddress, battery } = options;
+
+//   const querySnapshot = await db
+//     .collection("node-info")
+//     .where("nodeAddress", "==", String(nodeAddress))
+//     .get();
+
+//   if (!querySnapshot.empty) {
+//     const doc = querySnapshot.docs[0];
+//     await db.collection("node-info").doc(doc.id).update({ battery: battery });
+//   }
+
+//   console.log("[updateNodeBattery] done", loraContent);
+//   return;
+// };
 
 /*
   {
@@ -122,7 +116,7 @@ exports.getNodeInfoArr = async () => {
     pm25: "8",
     pm10: "8",
     ch2o: "0.001",
-    wind_direction: "남동",
-    wind_speed: "5",
+    wind_direction: "SW",
+    wind_speed: "5.00",
   }
 */

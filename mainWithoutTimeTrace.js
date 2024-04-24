@@ -47,12 +47,10 @@ function rcvHandler(loraData) {
     const loraContent = extractLoraContentFromLoraData(loraData);
     const splitedLoraContent = loraContent.split("/");
     const nodeSubstancesArray = [];
-    let battery;
 
-    for (const [index, value] of splitedLoraContent.entries()) {
+    for (const [value] of splitedLoraContent.entries()) {
       let result;
       const temp = parseInt(value);
-      if (index == 9 && !isNaN(temp)) battery = parseInt(value, 10);
 
       if (value.includes(".")) {
         result = parseFloat(value);
@@ -65,10 +63,6 @@ function rcvHandler(loraData) {
     }
     console.log("🚀 ~ rcvHandler ~ nodeSubstancesArray:", nodeSubstancesArray);
 
-    updateNodeBattery({
-      nodeAddress: nodeAddress,
-      battery: battery,
-    });
     addRawData({
       nodeAddress: nodeAddress,
       nodeSubstancesArray: nodeSubstancesArray,

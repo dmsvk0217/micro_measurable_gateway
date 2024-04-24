@@ -47,6 +47,7 @@ function rcvHandler(loraData) {
   const nodeAddress = getNodeAddressFromLaraData(loraData);
   const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){4}\d+\.\d+(\/\d+){2}\/\/,-?\d+,\d+$/;
   //+RCV=10,26,9/20/9/13/0.04/0/6//,-18,11
+  // +RCV=4,20,9/20/9/13/0.04/0/6//,0,10
 
   /*
       베터리 잔량 추가되는 경우 다음으로 수정
@@ -219,4 +220,3 @@ function getCurrentTimeInHHMMSSFormat() {
       <RSSI> Received Signal Strength Indicator : 시그널 세기
       <SNR> Signal-to-noise ratio : 노이즈 비율
 */
-

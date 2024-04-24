@@ -76,7 +76,6 @@ function rcvHandler(loraData) {
     });
   }
 
-  updateTimeTraceByNodeaddress(nodeAddress);
   console.log("-------------------------------------------\n");
   return;
 }

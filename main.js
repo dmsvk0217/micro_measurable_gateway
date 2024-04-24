@@ -210,10 +210,10 @@ function getCurrentTimeInHHMMSSFormat() {
 /* 
     ----------------LORA FORMAT----------------
     +RCV=<Address>,<Length>,<Data>,<RSSI>,<SNR>
-      EX. +RCV=4,20,9/20/9/13/0.04/0/6//,0,10
+      EX. +RCV=10,26,10/9/20/9/13/0.04/0/6/37//,-18,11
       <Address> Transmitter Address ID
       <Length> Data Length
-      <Data> ASCll Format Data : 온도/습도/pm25/pm10/ch2o/풍향/풍속
+      <Data> ASCll Format Data : 노드번호/온도/습도/pm25/pm10/ch2o/풍향/풍속/베터리
       <RSSI> Received Signal Strength Indicator : 시그널 세기
       <SNR> Signal-to-noise ratio : 노이즈 비율
 */

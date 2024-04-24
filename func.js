@@ -119,3 +119,4 @@ exports.getNodeInfoArr = async () => {
     wind_speed: "5",
   }
 */
+

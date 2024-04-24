@@ -3,9 +3,8 @@
 // const regexPattern =
 //   /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+)(\/\d+\.\d+)\/\/,-?\d+,\d+$/;
 
-const loraData = "+RCV=5,31,50/22/4/11/15/0.07/SE/0.00/88//,-28,11";
+const loraData = "+RCV=5,31,50/22/4/11/15/0.07/SE/0.00//,-28,11";
 
-const regexPattern =
-  /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)(\/\d+)\/\/,-?\d+,\d+$/;
+const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)\/\/,-?\d+,\d+$/;
 
 console.log("regexPattern vaild 결과 : ", regexPattern.test(loraData));

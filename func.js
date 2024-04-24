@@ -68,8 +68,15 @@ exports.addErrData = function addErrData(options) {
 exports.updateNodeBattery = async (options) => {
   const { nodeAddress, battery } = options;
 
-  const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", String(nodeAddress));
-  await nodeInfoRef.update({ battery: battery });
+  const querySnapshot = await db
+    .collection("node-info")
+    .where("nodeAddress", "==", String(nodeAddress))
+    .get();
+
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0];
+    await db.collection("node-info").doc(doc.id).update({ battery: battery });
+  }
 
   console.log("[updateNodeBattery] done", loraContent);
   return;
@@ -119,4 +126,3 @@ exports.getNodeInfoArr = async () => {
     wind_speed: "5",
   }
 */
-

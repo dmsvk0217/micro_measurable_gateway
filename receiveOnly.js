@@ -8,6 +8,7 @@ const {
   generateTestRandomNodeData,
   extractLoraContentFromLoraData,
   getLoraErrTypeFromLoraData,
+  getDate
 } = require("./util.js");
 
 const { SerialPort } = require("serialport");
@@ -17,16 +18,13 @@ const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 
 const numberOfNode = 15;
 const packetTimeIntervalMin = 1;
-const checkTimeIntervalMills = 30000;
-
-let timeTrace = Array.from({ length: numberOfNode + 1 }, () => new Date());
 
 port.on("open", () => {
   console.log("시리얼 포트가 열렸습니다.");
-  setInterval(onTimeTrace, checkTimeIntervalMills);
 
   parser.on("data", (data) => {
-    console.log(data.toString());
+    let { hhmmss } = getDate();
+    console.log(`[${hhmmss}] ${data.toString()}`);
     loraHandler(data.toString());
   });
 });
@@ -45,12 +43,13 @@ function rcvHandler(loraData) {
   console.log("----------------[rcvHandler]---------------");
 
   const nodeAddress = getNodeAddressFromLaraData(loraData);
-  const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){4}\d+\.\d+(\/\d+){2}\/\/,-?\d+,\d+$/;
-  //+RCV=10,26,9/20/9/13/0.04/0/6//,-18,11
+  const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/\d+){2}\/\/,-?\d+,\d+$/;
+  // +RCV=4,20,9/20/9/13/0.04/0/6//,0,10
+  // temperature/humidity/pm1.0/pm2.5/pm10/ch2o/wind-direction/wind-speed//
 
   /*
       베터리 잔량 추가되는 경우 다음으로 수정
-      const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){4}\d+\.\d+(\/\d+){3}\/\/,-?\d+,\d+$/;
+      const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/\d+){3}\/\/,-?\d+,\d+$/;
       //+RCV=10,26,9/20/9/13/0.04/0/6/39//,-18,11
   */
 
@@ -75,13 +74,11 @@ function rcvHandler(loraData) {
     //   nodeAddress: nodeAddress,
     //   loraContent: loraContent,
     // });
-    addRawData({
-      nodeAddress: nodeAddress,
-      nodeSubstancesArray: nodeSubstancesArray,
-    });
+    // addRawData({
+    //   nodeAddress: nodeAddress,
+    //   nodeSubstancesArray: nodeSubstancesArray,
+    // });
   }
-
-  updateTimeTraceByNodeaddress(nodeAddress);
   console.log("-------------------------------------------\n");
   return;
 }
@@ -114,59 +111,6 @@ function elseHandler(loraData) {
 
   console.log("-------------------------------------------\n");
   return;
-}
-
-async function onTimeTrace() {
-  console.log("----------------[onTimeTrace]--------------");
-
-  for (let index = 1; index <= numberOfNode; index++) {
-    const selectedTime = timeTrace[index];
-    const timeDifference = calculateTimeDifference(selectedTime);
-    const recentHHMMSS = getTimeInHHMMSSFormat(selectedTime);
-    const currentHHMMSS = getCurrentTimeInHHMMSSFormat();
-
-    console.log(
-      `[onTimeTrace ${currentHHMMSS}] ${index}번 노드의 ${packetTimeIntervalMin}분 초과여부: ${
-        timeDifference >= packetTimeIntervalMin
-      } / 최근 수신시간: ${recentHHMMSS}  / 초과한 시간: ${timeDifference}분`
-    );
-
-    if (timeDifference >= packetTimeIntervalMin) {
-      const nodeInfo = await getCurrentNodeInfoByNodeAddress(String(index));
-      console.log(nodeInfo);
-      addErrData({
-        nodeInfo: nodeInfo,
-        errMsg: "로라 패킷 수신불가",
-      });
-      updateTimeTraceByNodeaddress(index);
-    }
-  }
-  console.log("-------------------------------------------\n");
-  return;
-}
-
-function calculateTimeDifference(timeObj) {
-  var currentTime = new Date();
-  var differenceInMilliseconds = currentTime.getTime() - timeObj.getTime();
-  var differenceInMinutes = (differenceInMilliseconds / (1000 * 60)).toFixed(2);
-
-  return differenceInMinutes;
-}
-
-function updateTimeTraceByNodeaddress(nodeAddress) {
-  timeTrace[nodeAddress] = new Date();
-
-  const time = getTimeInHHMMSSFormat(timeTrace[nodeAddress]);
-  console.log(`[Receive from Node${nodeAddress}] : ${time}`);
-  return;
-}
-
-function printTimeTrace() {
-  for (let index = 1; index <= numberOfNode; index++) {
-    const selectedTime = timeTrace[index];
-    const time = getTimeInHHMMSSFormat(selectedTime);
-    console.log(`[Node${index} TraceTime] : ${time}`);
-  }
 }
 
 function getNodeAddressFromLaraData(loraData) {
@@ -212,10 +156,10 @@ function getCurrentTimeInHHMMSSFormat() {
 /* 
     ----------------LORA FORMAT----------------
     +RCV=<Address>,<Length>,<Data>,<RSSI>,<SNR>
-      EX. +RCV=10,26,10/9/20/9/13/0.04/0/6/37//,-18,11
+      EX. +RCV=4,20,9/20/9/13/0.04/0/6//,0,10
       <Address> Transmitter Address ID
       <Length> Data Length
-      <Data> ASCll Format Data : 노드번호/온도/습도/pm25/pm10/ch2o/풍향/풍속/베터리
+      <Data> ASCll Format Data : 온도/습도/pm25/pm10/ch2o/풍향/풍속
       <RSSI> Received Signal Strength Indicator : 시그널 세기
       <SNR> Signal-to-noise ratio : 노이즈 비율
 */

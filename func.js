@@ -8,7 +8,7 @@ exports.addRawData = async function addRawData(options) {
   const { yyyyMM, dayDD, hhmmss, hh } = util.getDate();
 
   const rawDataRef = db.collection(`raw-data/${yyyyMM}/day${dayDD}`);
-  const nodeInfo = await exports.getCurrentNodeInfoByNodeAddress(nodeAddress);
+  const nodeInfo = await exports.getNodeInfoByNodeAddress(nodeAddress);
   const dataObject = {
     nodeAddress: nodeAddress,
     date: `${yyyyMM}-${dayDD}`,
@@ -21,6 +21,7 @@ exports.addRawData = async function addRawData(options) {
     [substanceType[4]]: nodeSubstancesArray[4],
     [substanceType[5]]: nodeSubstancesArray[5],
     [substanceType[6]]: nodeSubstancesArray[6],
+    [substanceType[7]]: nodeSubstancesArray[7],
   };
 
   try {
@@ -57,46 +58,35 @@ exports.addErrData = function addErrData(options) {
 
   try {
     console.log("[addErrData] dataObject : ", dataObject);
-    // errDataRef.add(dataObject);
+    errDataRef.add(dataObject);
   } catch (error) {
     console.log("🚀 ~ addErrData ~ error:", error);
   }
-
   return;
 };
 
-// update Node Battery
 exports.updateNodeBattery = async (options) => {
-  const { nodeAddress, loraContent } = options;
-  const nodeInfo = await this.getCurrentNodeInfoByNodeAddress(nodeAddress);
-  const id = nodeInfo.id;
-  const battery = getLastSegmentAfterSlash(loraContent);
+  const { nodeAddress, battery } = options;
 
-  const nodeInfoRef = db.doc(`node-info/${id}`);
+  const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", String(nodeAddress));
   await nodeInfoRef.update({ battery: battery });
 
-  const updatedDocumentSnapshot = await nodeInfoRef.get();
   console.log("[updateNodeBattery] done", loraContent);
   return;
 };
 
-function getLastSegmentAfterSlash(inputString) {
-  const segments = inputString.split("/");
-  return segments[segments.length - 3]; // 로라 컨텐트 상의 베터리 잔량 위치
-}
-
-exports.getCurrentNodeInfoByNodeAddress = async (nodeAddress) => {
-  console.log("[getCurrentNodeInfoByNodeAddress] :", nodeAddress);
+exports.getNodeInfoByNodeAddress = async (nodeAddress) => {
+  console.log("[getNodeInfoByNodeAddress] :", nodeAddress);
   const nodeInfoRef = db.collection("node-info").where("nodeAddress", "==", String(nodeAddress));
 
   const nodeInfoSnapshot = await nodeInfoRef.get();
   if (nodeInfoSnapshot.empty) {
-    console.log("undefined");
+    console.log("nodeInfoSnapshot is empty");
     return undefined;
   }
 
   let nodeInfo = nodeInfoSnapshot.docs[0].data();
-  nodeInfo["id"] = nodeInfoSnapshot.docs[0].id;
+  nodeInfo["docId"] = nodeInfoSnapshot.docs[0].docId;
   console.log(nodeInfo);
   return nodeInfo;
 };

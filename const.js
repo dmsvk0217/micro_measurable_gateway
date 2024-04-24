@@ -1,8 +1,9 @@
 exports.substanceType = [
-  "humidity",
   "temperature",
+  "humidity",
+  "pm1.0",
+  "pm2.5",
   "pm10",
-  "pm25",
   "ch2o",
   "wind-direction",
   "wind-speed",

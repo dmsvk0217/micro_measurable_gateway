@@ -1,5 +1,5 @@
-const { addLoraDataToFirestore } = require("./func.js");
-const util = require("./util.js");
+const { addLoraDataToFirestore } = require("../func.js");
+const util = require("../util.js");
 
 const yyyyMM = "2024-01";
 const dayStart = 1;

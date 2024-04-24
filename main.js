@@ -41,7 +41,7 @@ function rcvHandler(loraData) {
 
   const nodeAddress = getNodeAddressFromLaraData(loraData);
   const regexPattern =
-    /^\+RCV=\d+,\d+,(-?\d+\/){4}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)(\/\d+)\/\/,-?\d+,\d+$/;
+    /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)(\/\d+)\/\/,-?\d+,\d+$/;
 
   console.log("regexPattern vaild 결과 : ", regexPattern.test(loraData));
 

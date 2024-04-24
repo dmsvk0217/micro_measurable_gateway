@@ -18,7 +18,7 @@ port.on("open", () => {
     console.log("regexPattern vaild 결과 : ", regexPattern.test(loraData));
 
     if (regexPattern.test(loraData)) {
-      const loraContent = extractLoraContentFromLoraData(loraData);
+      const loraContent = util.extractLoraContentFromLoraData(loraData);
       const splitedLoraContent = loraContent.split("/");
       const nodeSubstancesArray = [];
       let battery;

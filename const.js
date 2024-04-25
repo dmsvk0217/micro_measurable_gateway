@@ -1,6 +1,6 @@
 exports.substanceType = [
-  "temperature",
   "humidity",
+  "temperature",
   "pm1.0",
   "pm2.5",
   "pm10",
@@ -45,23 +45,23 @@ exports.locationFromNodeNumberOptions = {
 };
 
 exports.substanceHourlyEnum = {
-  포름알데히드: "ch2o-hourly-average",
-  습도: "humidity-hourly-average",
-  PM10: "pm10-hourly-average",
+  "포름알데히드": "ch2o-hourly-average",
+  "습도": "humidity-hourly-average",
+  "PM10": "pm10-hourly-average",
   "PM2.5": "pm25-hourly-average",
-  온도: "temperature-hourly-average",
-  풍향: "wind-direction-hourly-average",
-  풍속: "wind-speed-hourly-average",
+  "온도": "temperature-hourly-average",
+  "풍향": "wind-direction-hourly-average",
+  "풍속": "wind-speed-hourly-average",
 };
 
 exports.substanceMonthlyEnum = {
-  포름알데히드: "ch2o-monthly-average",
-  습도: "humidity-monthly-average",
-  PM10: "pm10-monthly-average",
+  "포름알데히드": "ch2o-monthly-average",
+  "습도": "humidity-monthly-average",
+  "PM10": "pm10-monthly-average",
   "PM2.5": "pm25-monthly-average",
-  온도: "temperature-monthly-average",
-  풍향: "wind-direction-monthly-average",
-  풍속: "wind-speed-monthly-average",
+  "온도": "temperature-monthly-average",
+  "풍향": "wind-direction-monthly-average",
+  "풍속": "wind-speed-monthly-average",
 };
 
 exports.positionOfNode = {

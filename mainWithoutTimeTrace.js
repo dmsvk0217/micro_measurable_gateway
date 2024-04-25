@@ -1,9 +1,4 @@
-const {
-  addRawData,
-  addErrData,
-  updateNodeBattery,
-  getCurrentNodeInfoByNodeAddress,
-} = require("./func.js");
+const { addRawData, addErrData } = require("./func.js");
 const { extractLoraContentFromLoraData, getLoraErrTypeFromLoraData } = require("./util.js");
 
 const { SerialPort } = require("serialport");

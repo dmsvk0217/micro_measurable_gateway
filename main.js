@@ -49,7 +49,7 @@ function rcvHandler(loraData) {
     const splitedLoraContent = loraContent.split("/");
     const nodeSubstancesArray = [];
 
-    for (const [value] of splitedLoraContent.entries()) {
+    for (const [index, value] of splitedLoraContent.entries()) {
       let result;
       const temp = parseInt(value);
 

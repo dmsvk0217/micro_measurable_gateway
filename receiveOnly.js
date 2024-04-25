@@ -5,7 +5,7 @@ const { ReadlineParser } = require("@serialport/parser-readline");
 const port = new SerialPort({ path: "/dev/serial0", baudRate: 9600 });
 const parser = port.pipe(new ReadlineParser({ delimiter: "\r\n" }));
 
-const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)\/\/,-?\d+,\d+$/;
+const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)\/\/,-?\d+,-?\d+$/;
 
 port.on("open", () => {
   console.log("시리얼 포트가 열렸습니다.");

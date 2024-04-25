@@ -1,8 +1,8 @@
-const loraData = "+RCV=5,31,50/22/4/11/15/0.07/SE/0.00//,-28,11";
+const loraData = "+RCV=5,28,66/16/9/18/18/0.01/NE/0.00//,-73,-13";
+// +RCV=5,29,72/17/13/25/25/0.01/NE/0.00//,-88,8
+// +RCV=5,28,66/16/9/18/18/0.01/NE/0.00//,-73,-13
 
-const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)\/\/,-?\d+,\d+$/;
-
-console.log("regexPattern vaild 결과 : ", regexPattern.test(loraData));
+const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)\/\/,-?\d+,-?\d+$/;
 
 rcvHandler(loraData);
 
@@ -10,7 +10,7 @@ function rcvHandler(loraData) {
   console.log("----------------[rcvHandler]---------------");
 
   const nodeAddress = getNodeAddressFromLaraData(loraData);
-  const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)\/\/,-?\d+,\d+$/;
+  const regexPattern = /^\+RCV=\d+,\d+,(-?\d+\/){5}\d+\.\d+(\/.{1,2})(\/\d+\.\d+)\/\/,-?\d+,-?\d+$/;
 
   console.log("regexPattern vaild 결과 : ", regexPattern.test(loraData));
 
@@ -20,8 +20,6 @@ function rcvHandler(loraData) {
   const nodeSubstancesArray = [];
 
   for (const [index, value] of splitedLoraContent.entries()) {
-    console.log("🚀 ~ rcvHandler ~ value:", value);
-    console.log(typeof value);
     let result;
     const temp = parseInt(value);
 
@@ -34,7 +32,7 @@ function rcvHandler(loraData) {
     }
     nodeSubstancesArray.push(result);
   }
-  console.log("🚀 ~ rcvHandler ~ nodeSubstancesArray:", nodeSubstancesArray);
+  // console.log("🚀 ~ rcvHandler ~ nodeSubstancesArray:", nodeSubstancesArray);
 
   console.log("-------------------------------------------\n");
   return;

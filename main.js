@@ -65,6 +65,7 @@ function rcvHandler(loraData) {
     console.log("🚀 ~ rcvHandler ~ nodeSubstancesArray:", nodeSubstancesArray);
 
     addRawData({
+      loraContent: loraContent,
       nodeAddress: nodeAddress,
       nodeSubstancesArray: nodeSubstancesArray,
     });

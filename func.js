@@ -4,7 +4,7 @@ const { substanceType } = require("./const.js");
 
 // addRawData
 exports.addRawData = async function addRawData(options) {
-  const { nodeAddress, nodeSubstancesArray, loraContent } = options;
+  const { nodeAddress, nodeSubstancesArray, loraData } = options;
   const { yyyyMM, dayDD, hhmmss } = util.getDate();
 
   const rawDataRef = db.collection(`raw-data/${yyyyMM}/day${dayDD}`);
@@ -13,7 +13,7 @@ exports.addRawData = async function addRawData(options) {
     nodeAddress: nodeAddress,
     date: `${yyyyMM}-${dayDD}`,
     timestamp: hhmmss,
-    loraContent: loraContent,
+    loraData: loraData,
     nodeInfo: nodeInfo,
     [substanceType[0]]: nodeSubstancesArray[0],
     [substanceType[1]]: nodeSubstancesArray[1],

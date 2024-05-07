@@ -37,7 +37,7 @@ function rcvHandler(loraData) {
   if (!regexPattern.test(loraData)) {
     addErrData({ loraContent: loraData, nodeInfo: null, errMsg: "lora regexPattern invaild" });
   }
-  // Vaild Case
+  // Vaild Case: +RCV= 1)vaild and contain 2) init value 3) 쓰레기 값
   else {
     const loraContent = extractLoraContentFromLoraData(loraData);
     const splitedLoraContent = loraContent.split("/");
